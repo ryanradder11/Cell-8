@@ -10,3 +10,6 @@ compile_commands.json
 
 # IDE
 .idea/
+
+# CHIP-8 ROMs (third-party binary game/test files, not project source)
+roms/
