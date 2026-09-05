@@ -4,7 +4,7 @@
 
 TARGET	:= Cell-8
 
-OFILES	:= source/main.o source/rsxutil.o source/font5x7.o
+OFILES	:= source/main.o source/rsxutil.o source/font/font5x7.o
 
 INCLUDES := -Iinclude -I$(PS3DEV)/ppu/include
 
@@ -57,4 +57,4 @@ run: $(TARGET).self
 	"$(RPCS3)" "$(CURDIR)/$(TARGET).self"
 
 clean:
-	rm -rf $(TARGET).elf $(TARGET).self $(TARGET).pkg $(TARGET)*.gnpdrm.pkg $(TARGET).fake.self $(BUILDDIR) source/*.o
+	rm -rf $(TARGET).elf $(TARGET).self $(TARGET).pkg $(TARGET)*.gnpdrm.pkg $(TARGET).fake.self $(BUILDDIR) $(OFILES)

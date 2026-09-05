@@ -1,4 +1,4 @@
-#include "font5x7.h"
+#include "font/font5x7.h"
 
 #define FONT_GLYPH_W 5
 #define FONT_GLYPH_H 7

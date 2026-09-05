@@ -9,7 +9,7 @@
 #include <io/pad.h>
 
 #include "rsxutil.h"
-#include "font5x7.h"
+#include "font/font5x7.h"
 
 SYS_PROCESS_PARAM(1001, 0x100000);
 
