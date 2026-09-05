@@ -1,0 +1,7 @@
+CompileFlags:
+  Add:
+    - -Iinclude
+    - -I/usr/local/ps3dev/ppu/include
+    - -Wall
+    - --target=powerpc64-ps3-elf
+    - -xc++
