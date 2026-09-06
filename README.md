@@ -12,6 +12,12 @@ Built upon [ryanradder11/chip8-emulator](https://github.com/ryanradder11/chip8-e
 
 <p align="center"><img src="screenshots/chip8_on_ps3.jpg" width="500" alt="Cell-8 installed on real PS3 hardware"></p>
 
+<p align="center">
+  <img src="screenshots/opcode-test-passing.png" width="400" alt="corax+ opcode test suite passing on real PS3 hardware">
+  <img src="screenshots/flags-test-passing.png" width="400" alt="flags/quirks test suite passing on real PS3 hardware">
+</p>
+<p align="center"><sub>The Timendus corax+ and flags test ROMs passing on real PS3 hardware.</sub></p>
+
 ## Features
 
 - **CHIP-8 interpreter** — full opcode set, ported from [ryanradder11/chip8-emulator](https://github.com/ryanradder11/chip8-emulator) onto raw PS3 hardware.
