@@ -27,6 +27,16 @@ static const Glyph GLYPH_MINUS = {
 	0b00000,
 };
 
+static const Glyph GLYPH_B = {
+	0b11110,
+	0b10001,
+	0b10001,
+	0b11110,
+	0b10001,
+	0b10001,
+	0b11110,
+};
+
 static const Glyph GLYPH_A = {
 	0b01110,
 	0b10001,
@@ -187,25 +197,235 @@ static const Glyph GLYPH_8 = {
 	0b01110,
 };
 
+static const Glyph GLYPH_D = {
+	0b11110,
+	0b10001,
+	0b10001,
+	0b10001,
+	0b10001,
+	0b10001,
+	0b11110,
+};
+
+static const Glyph GLYPH_F = {
+	0b11111,
+	0b10000,
+	0b10000,
+	0b11110,
+	0b10000,
+	0b10000,
+	0b10000,
+};
+
+static const Glyph GLYPH_G = {
+	0b01110,
+	0b10000,
+	0b10000,
+	0b10111,
+	0b10001,
+	0b10001,
+	0b01110,
+};
+
+static const Glyph GLYPH_J = {
+	0b00001,
+	0b00001,
+	0b00001,
+	0b00001,
+	0b00001,
+	0b10001,
+	0b01110,
+};
+
+static const Glyph GLYPH_K = {
+	0b10001,
+	0b10010,
+	0b10100,
+	0b11000,
+	0b10100,
+	0b10010,
+	0b10001,
+};
+
+static const Glyph GLYPH_N = {
+	0b10001,
+	0b11001,
+	0b10101,
+	0b10101,
+	0b10011,
+	0b10001,
+	0b10001,
+};
+
+static const Glyph GLYPH_Q = {
+	0b01110,
+	0b10001,
+	0b10001,
+	0b10001,
+	0b10101,
+	0b10010,
+	0b01101,
+};
+
+static const Glyph GLYPH_V = {
+	0b10001,
+	0b10001,
+	0b10001,
+	0b10001,
+	0b10001,
+	0b01010,
+	0b00100,
+};
+
+static const Glyph GLYPH_W = {
+	0b10001,
+	0b10001,
+	0b10001,
+	0b10101,
+	0b10101,
+	0b10101,
+	0b01010,
+};
+
+static const Glyph GLYPH_Y = {
+	0b10001,
+	0b10001,
+	0b01010,
+	0b00100,
+	0b00100,
+	0b00100,
+	0b00100,
+};
+
+static const Glyph GLYPH_Z = {
+	0b11111,
+	0b00001,
+	0b00010,
+	0b00100,
+	0b01000,
+	0b10000,
+	0b11111,
+};
+
+static const Glyph GLYPH_1 = {
+	0b00100,
+	0b01100,
+	0b00100,
+	0b00100,
+	0b00100,
+	0b00100,
+	0b01110,
+};
+
+static const Glyph GLYPH_2 = {
+	0b01110,
+	0b10001,
+	0b00001,
+	0b00010,
+	0b00100,
+	0b01000,
+	0b11111,
+};
+
+static const Glyph GLYPH_3 = {
+	0b01110,
+	0b10001,
+	0b00001,
+	0b00110,
+	0b00001,
+	0b10001,
+	0b01110,
+};
+
+static const Glyph GLYPH_4 = {
+	0b00010,
+	0b00110,
+	0b01010,
+	0b10010,
+	0b11111,
+	0b00010,
+	0b00010,
+};
+
+static const Glyph GLYPH_5 = {
+	0b11111,
+	0b10000,
+	0b11110,
+	0b00001,
+	0b00001,
+	0b10001,
+	0b01110,
+};
+
+static const Glyph GLYPH_6 = {
+	0b00110,
+	0b01000,
+	0b10000,
+	0b11110,
+	0b10001,
+	0b10001,
+	0b01110,
+};
+
+static const Glyph GLYPH_7 = {
+	0b11111,
+	0b00001,
+	0b00010,
+	0b00100,
+	0b01000,
+	0b01000,
+	0b01000,
+};
+
+static const Glyph GLYPH_9 = {
+	0b01110,
+	0b10001,
+	0b10001,
+	0b01111,
+	0b00001,
+	0b00010,
+	0b01100,
+};
+
 static const Glyph *getGlyph(char c)
 {
 	switch (c) {
 		case 'A': return &GLYPH_A;
+		case 'B': return &GLYPH_B;
 		case 'C': return &GLYPH_C;
+		case 'D': return &GLYPH_D;
 		case 'E': return &GLYPH_E;
+		case 'F': return &GLYPH_F;
+		case 'G': return &GLYPH_G;
 		case 'H': return &GLYPH_H;
 		case 'I': return &GLYPH_I;
+		case 'J': return &GLYPH_J;
+		case 'K': return &GLYPH_K;
 		case 'L': return &GLYPH_L;
 		case 'M': return &GLYPH_M;
+		case 'N': return &GLYPH_N;
 		case 'O': return &GLYPH_O;
 		case 'P': return &GLYPH_P;
+		case 'Q': return &GLYPH_Q;
 		case 'R': return &GLYPH_R;
 		case 'S': return &GLYPH_S;
 		case 'T': return &GLYPH_T;
 		case 'U': return &GLYPH_U;
+		case 'V': return &GLYPH_V;
+		case 'W': return &GLYPH_W;
 		case 'X': return &GLYPH_X;
+		case 'Y': return &GLYPH_Y;
+		case 'Z': return &GLYPH_Z;
 		case '0': return &GLYPH_0;
+		case '1': return &GLYPH_1;
+		case '2': return &GLYPH_2;
+		case '3': return &GLYPH_3;
+		case '4': return &GLYPH_4;
+		case '5': return &GLYPH_5;
+		case '6': return &GLYPH_6;
+		case '7': return &GLYPH_7;
 		case '8': return &GLYPH_8;
+		case '9': return &GLYPH_9;
 		case '-': return &GLYPH_MINUS;
 		default:  return &GLYPH_SPACE; // includes ' ' and anything unmapped
 	}
