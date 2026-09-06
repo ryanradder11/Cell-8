@@ -109,9 +109,9 @@ int main(void)
 
 	ioPadInit(7);
 
-	// Populate ROM_LIST: built-in ROMs first, then anything found on the
-	// HDD (creating that folder if it's missing) and USB roms/ dirs --
-	// see romlist.cpp for exact paths/behavior.
+	// Populate ROM_LIST by scanning the HDD (creating that folder if it's
+	// missing) and all USB roms/ dirs -- see romlist.cpp for exact
+	// paths/behavior.
 	romlist_init();
 	if (mainDebug) {
 		printf("[romlist] ROM_COUNT=%d\n", ROM_COUNT);

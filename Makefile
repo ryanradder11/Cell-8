@@ -15,8 +15,15 @@ LIBS	 := -lrsx -lgcm_sys -lsysutil -lio -lsysfs -lrt -llv2 -lm
 
 BUILDDIR := build
 
+# Bundles roms/ (just the 8 Timendus chip8-test-suite ROMs) into the
+# .pkg's USRDIR/roms/ -- the exact same directory romlist.cpp's HDD scan
+# reads from (/dev_hdd0/game/CELL80001/USRDIR/roms/), so once installed
+# these show up in the menu automatically, no extra code needed.
+PKGFILES := roms
+
 TITLE	:= Cell-8
 APPID	:= CELL80001
+ICON0	:= ICON0.png
 
 # Local RPCS3 install, used by the "run" target below. Override on the
 # command line (make RPCS3=/other/path run) if it ever moves.
