@@ -215,8 +215,8 @@ void emulateCycle(Chip8 &chip)
 				case 0x5: {
 					uint8_t vx = chip.V[x];
 					uint8_t vy = chip.V[y];
-					chip.V[0xF] = (vx >= vy) ? 1 : 0;
 					chip.V[x] = (vx - vy) & 0xFF;
+					chip.V[0xF] = (vx >= vy) ? 1 : 0;
 					chip.pc += 2;
 					if (debug) printf("Set V[%d] -= V[%d] (%d), with borrow flag\n", x, y, chip.V[y]);
 				}
@@ -228,12 +228,12 @@ void emulateCycle(Chip8 &chip)
 					// printBinary8("[8xy6] V[x] before AND", chip.V[x]);
 					// printBinary8("[8xy6] mask 0x1        ", 0x1);
 
-					chip.V[0xF] = x_value & 0x1;
 
 					// printBinary8("[8xy6] V[x] & 0x1 -> VF", chip.V[0xF]);
 					// printf("[8xy6 mid]  after VF write: V[x]=%d V[0xF]=%d\n", chip.V[x], chip.V[0xF]);
 
 					chip.V[x] = x_value >> 1;
+					chip.V[0xF] = x_value & 0x1;
 
 					// printf("[8xy6 post] V[x]=%d V[0xF]=%d\n", chip.V[x], chip.V[0xF]);
 					chip.pc += 2;
@@ -263,11 +263,18 @@ void emulateCycle(Chip8 &chip)
 				break;
 				// Set VX equal to VX bitshifted left 1. VF is set to the most significant bit of VX prior to the shift
 				case 0xe: {
-					printf("[8xyE pre]  x=%d y=%d V[x]=%d V[0xF]=%d\n", x, y, chip.V[x], chip.V[0xF]);
-					uint8_t mostSignificantBit = (chip.V[x] & 0x80) ? 1 : 0;
+					printf("[8xyE pre]  x=%d y=%d\n", x, y);
+					printBinary8("[8xyE] V[x] before shift", chip.V[x]);
+					printBinary8("[8xyE] mask 0x80        ", 0x80);
+
+					uint8_t vx = chip.V[x];
+					uint8_t mostSignificantBit = (vx & 0x80) ? 1 : 0;
+
+					printBinary8("[8xyE] V[x] & 0x80 -> bit", mostSignificantBit);
+
+					chip.V[x] = (vx << 1) & 0xFF;
 					chip.V[0xF] = mostSignificantBit;
-					chip.V[x] = (chip.V[x] << 1) & 0xFF;
-					printf("[8xyE post] V[x]=%d V[0xF]=%d\n", chip.V[x], chip.V[0xF]);
+
 					chip.pc += 2;
 					if (debug) printf("Shift V[%d] left by 1. VF = %d\n", x, chip.V[0xF]);
 				}
