@@ -54,8 +54,10 @@ Built upon [ryanradder11/chip8-emulator](https://github.com/ryanradder11/chip8-e
 
 Just drop `.ch8` files into one of these folders below and they'll show up in the menu next time Cell-8 starts:
 
-- **Internal HDD:** `/dev_hdd0/game/CELL80001/USRDIR/roms/` (created automatically on first run if it doesn't exist yet)
-- **USB drive:** a `roms/` folder at the root of the stick, Cell-8 checks all 8 possible slots (`/dev_usb000` through `/dev_usb007`), since the PS3 doesn't map physical ports to fixed slot numbers.
+| Location | Path | Notes |
+|---|---|---|
+| Internal HDD | `/dev_hdd0/game/CELL80001/USRDIR/roms/` | Created automatically on first run if it doesn't exist yet. |
+| USB drive | `roms/` folder at the root of the stick | Any port works — Cell-8 checks all 8 possible slots (`/dev_usb000` through `/dev_usb007`). |
 
 ## Building from source
 
