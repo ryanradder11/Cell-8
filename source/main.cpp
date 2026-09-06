@@ -11,11 +11,12 @@
 #include "rsxutil.h"
 #include "font/font5x7.h"
 #include "chip8/chip8.h"
+#include "romlist/romlist.h"
 
 SYS_PROCESS_PARAM(1001, 0x100000);
 
 static u32 running = 0;
-static bool debug = false;
+static bool mainDebug = false; // named differently from chip8.h's `debug` global to avoid clashing
 
 extern "C" {
 static void program_exit_callback()
@@ -62,8 +63,8 @@ static void drawChip8Display(u32 *buffer, u32 pitchPixels, const Chip8 &chip, s3
 static void updateChip8Keys(Chip8 &chip, const padData &paddata)
 {
 	// DEBUG: only prints when at least one button is actually held (and
-	// only if `debug` is on), so it doesn't spam every frame while idle.
-	if (debug && (paddata.BTN_UP || paddata.BTN_DOWN || paddata.BTN_LEFT || paddata.BTN_RIGHT ||
+	// only if `mainDebug` is on), so it doesn't spam every frame while idle.
+	if (mainDebug && (paddata.BTN_UP || paddata.BTN_DOWN || paddata.BTN_LEFT || paddata.BTN_RIGHT ||
 	    paddata.BTN_TRIANGLE || paddata.BTN_CIRCLE || paddata.BTN_CROSS || paddata.BTN_SQUARE ||
 	    paddata.BTN_L1 || paddata.BTN_R1 || paddata.BTN_L2 || paddata.BTN_R2 ||
 	    paddata.BTN_SELECT || paddata.BTN_START || paddata.BTN_L3 || paddata.BTN_R3)) {
@@ -151,24 +152,17 @@ int main(void)
 		flip();
 	}
 
-	// CHIP-8: ~/projects/chip8-emulator, ported as-is (see chip8.h/.cpp).
-	// Same fixed ROM path the original loaded by default.
-	Chip8 chip = {}; // zero-initialized; the original leaves this to
-	                 // whatever garbage was on the stack, which is riskier
-	                 // to carry over onto a different CPU architecture
-	chip.pc = 0x200; // Start of most CHIP-8 programs
-	// PS3 file I/O needs the /app_home/ VFS prefix to find files bundled
-	// next to the executable -- a bare relative path (what the original
-	// desktop version used) doesn't resolve here.
-	loadROM("/app_home/roms/Landing.ch8", chip);
+	// Persists across returns to the menu (SELECT during gameplay), so the
+	// previously-played ROM stays highlighted instead of resetting to 0.
+	int selectedRom = 0;
 
 	const u32 chip8Scale = 10; // matches the original's drawDisplay() default
 	s32 chip8OriginX = (display_width - 64 * chip8Scale) / 2;
 	s32 chip8OriginY = (display_height - 32 * chip8Scale) / 2;
 
-	// DEBUG: print pad connection status once, right before entering the
-	// CHIP-8 loop, so we know whether RPCS3 even reports a connected pad.
-	if (debug) {
+	// DEBUG: print pad connection status once, so we know whether RPCS3
+	// even reports a connected pad.
+	if (mainDebug) {
 		ioPadGetInfo(&padinfo);
 		printf("[pad] max=%d\n", padinfo.max);
 		for (int i = 0; i < MAX_PADS; i++) {
@@ -176,41 +170,164 @@ int main(void)
 		}
 	}
 
+	// Outer loop: pick a ROM in the menu, play it until SELECT sends us
+	// back here to pick another one (or the app is asked to exit).
 	while (running) {
-		sysUtilCheckCallback();
+		// ROM selection menu: D-pad up/down to move, Cross to confirm.
+		// Unlike updateChip8Keys() (which wants continuous "is held"
+		// state for game input), menu navigation needs edge-detection --
+		// only react the frame a button transitions from released to
+		// pressed, or a single tap would scroll through several entries
+		// before you let go.
 
+		// Seed prev* with the pad's *actual current* state, not false --
+		// otherwise a button still held from the previous screen (intro's
+		// Cross, or gameplay's Select) reads as a fresh edge here and
+		// instantly confirms/reacts on the very first frame.
+		bool prevUp = false, prevDown = false, prevCross = false;
 		ioPadGetInfo(&padinfo);
 		for (int i = 0; i < MAX_PADS; i++) {
 			if (padinfo.status[i]) {
 				ioPadGetData(i, &paddata);
-				updateChip8Keys(chip, paddata);
+				prevUp = paddata.BTN_UP;
+				prevDown = paddata.BTN_DOWN;
+				prevCross = paddata.BTN_CROSS;
 			}
 		}
 
-		// The original ran emulateCycle() roughly 100x/sec (a free-running
-		// loop with a 10ms SDL_Delay). Our loop is instead paced by
-		// flip()'s vsync (~60Hz), so a couple of cycles per rendered
-		// frame lands in the same ballpark.
-		emulateCycle(chip);
-		emulateCycle(chip);
+		bool romChosen = false;
 
-		// 60Hz timers, decremented once per rendered frame.
-		if (chip.delay_timer > 0) chip.delay_timer--;
-		if (chip.sound_timer > 0) chip.sound_timer--; // no audio output (yet)
+		while (!romChosen && running) {
+			sysUtilCheckCallback();
 
-		// Redrawn every frame regardless of drawFlag (unlike the original):
-		// with quad-buffering, only redrawing on drawFlag can leave stale
-		// content (e.g. leftover intro text) in ring-buffer slots that
-		// weren't touched during the most recent draw.
-		u32 *buf = color_buffer[curr_fb];
-		u32 pitchPixels = color_pitch / 4;
-		memset(buf, 0, display_height * color_pitch);
+			bool curUp = false, curDown = false, curCross = false;
+			ioPadGetInfo(&padinfo);
+			for (int i = 0; i < MAX_PADS; i++) {
+				if (padinfo.status[i]) {
+					ioPadGetData(i, &paddata);
+					curUp = paddata.BTN_UP;
+					curDown = paddata.BTN_DOWN;
+					curCross = paddata.BTN_CROSS;
+				}
+			}
 
-		drawChip8Display(buf, pitchPixels, chip, chip8OriginX, chip8OriginY, chip8Scale);
+			if (curUp && !prevUp) {
+				selectedRom = (selectedRom - 1 + ROM_COUNT) % ROM_COUNT;
+			}
+			if (curDown && !prevDown) {
+				selectedRom = (selectedRom + 1) % ROM_COUNT;
+			}
+			if (curCross && !prevCross) {
+				romChosen = true;
+			}
+			prevUp = curUp;
+			prevDown = curDown;
+			prevCross = curCross;
 
-		chip.drawFlag = false;
+			u32 *buf = color_buffer[curr_fb];
+			u32 pitchPixels = color_pitch / 4;
+			memset(buf, 0, display_height * color_pitch);
 
-		flip();
+			const char *menuTitle = "SELECT ROM";
+			const u32 menuTitleScale = 4;
+			const u32 entryScale = 2;
+			s32 menuTitleX = (display_width - textWidth5x7(menuTitle, menuTitleScale)) / 2;
+			drawText5x7(buf, pitchPixels, menuTitleX, 40, menuTitle, 0x00ffffff, menuTitleScale);
+
+			s32 entryY = 120;
+			s32 entryLineHeight = (7 + 4) * entryScale; // glyphs are 7px tall (font5x7.cpp), + 4px gap
+
+			// ROM_COUNT (84 as of writing) doesn't fit on screen at once, so
+			// only render a scrolling window of VISIBLE_ROWS entries, kept
+			// centered around selectedRom (clamped at the list's ends).
+			const int VISIBLE_ROWS = 12;
+			int scrollOffset = selectedRom - VISIBLE_ROWS / 2;
+			if (scrollOffset > ROM_COUNT - VISIBLE_ROWS) scrollOffset = ROM_COUNT - VISIBLE_ROWS;
+			if (scrollOffset < 0) scrollOffset = 0;
+
+			for (int row = 0; row < VISIBLE_ROWS; row++) {
+				int i = scrollOffset + row;
+				if (i >= ROM_COUNT) break;
+
+				u32 color = (i == selectedRom) ? 0x00ffffff : 0x00808080;
+				s32 entryX = (display_width - textWidth5x7(ROM_LIST[i].name, entryScale)) / 2;
+				drawText5x7(buf, pitchPixels, entryX, entryY + row * entryLineHeight, ROM_LIST[i].name, color, entryScale);
+			}
+
+			flip();
+		}
+
+		if (!running) break;
+
+		// CHIP-8: ~/projects/chip8-emulator, ported as-is (see chip8.h/.cpp).
+		Chip8 chip = {}; // zero-initialized; the original leaves this to
+		                 // whatever garbage was on the stack, which is riskier
+		                 // to carry over onto a different CPU architecture
+		chip.pc = 0x200; // Start of most CHIP-8 programs
+		loadROM(ROM_LIST[selectedRom].path, chip);
+
+		// Seed prevSelect the same way as the menu's prev* above -- Cross
+		// is still held from confirming the menu, but that's a different
+		// button, so this mainly guards against Select itself being held
+		// from a previous return-to-menu round-trip.
+		bool prevSelect = false;
+		ioPadGetInfo(&padinfo);
+		for (int i = 0; i < MAX_PADS; i++) {
+			if (padinfo.status[i]) {
+				ioPadGetData(i, &paddata);
+				prevSelect = paddata.BTN_SELECT;
+			}
+		}
+
+		bool backToMenu = false;
+
+		while (running && !backToMenu) {
+			sysUtilCheckCallback();
+
+			bool curSelect = false;
+			ioPadGetInfo(&padinfo);
+			for (int i = 0; i < MAX_PADS; i++) {
+				if (padinfo.status[i]) {
+					ioPadGetData(i, &paddata);
+					updateChip8Keys(chip, paddata);
+					curSelect = paddata.BTN_SELECT;
+				}
+			}
+
+			if (curSelect && !prevSelect) {
+				backToMenu = true;
+			}
+			prevSelect = curSelect;
+
+			if (backToMenu) {
+				break; // skip simulating/rendering a frame we're about to leave
+			}
+
+			// The original ran emulateCycle() roughly 100x/sec (a free-running
+			// loop with a 10ms SDL_Delay). Our loop is instead paced by
+			// flip()'s vsync (~60Hz), so a couple of cycles per rendered
+			// frame lands in the same ballpark.
+			emulateCycle(chip);
+			emulateCycle(chip);
+
+			// 60Hz timers, decremented once per rendered frame.
+			if (chip.delay_timer > 0) chip.delay_timer--;
+			if (chip.sound_timer > 0) chip.sound_timer--; // no audio output (yet)
+
+			// Redrawn every frame regardless of drawFlag (unlike the original):
+			// with quad-buffering, only redrawing on drawFlag can leave stale
+			// content (e.g. leftover intro text) in ring-buffer slots that
+			// weren't touched during the most recent draw.
+			u32 *buf = color_buffer[curr_fb];
+			u32 pitchPixels = color_pitch / 4;
+			memset(buf, 0, display_height * color_pitch);
+
+			drawChip8Display(buf, pitchPixels, chip, chip8OriginX, chip8OriginY, chip8Scale);
+
+			chip.drawFlag = false;
+
+			flip();
+		}
 	}
 
 	printf("Cell-8: exiting...\n");

@@ -4,7 +4,7 @@
 
 TARGET	:= Cell-8
 
-OFILES	:= source/main.o source/rsxutil.o source/font/font5x7.o source/chip8/chip8.o
+OFILES	:= source/main.o source/rsxutil.o source/font/font5x7.o source/chip8/chip8.o source/romlist/romlist.o
 
 INCLUDES := -Iinclude -I$(PS3DEV)/ppu/include
 
