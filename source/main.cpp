@@ -15,6 +15,7 @@
 SYS_PROCESS_PARAM(1001, 0x100000);
 
 static u32 running = 0;
+static bool debug = false;
 
 extern "C" {
 static void program_exit_callback()
@@ -60,12 +61,12 @@ static void drawChip8Display(u32 *buffer, u32 pitchPixels, const Chip8 &chip, s3
 // precedent for this since the original never ran on a gamepad.
 static void updateChip8Keys(Chip8 &chip, const padData &paddata)
 {
-	// DEBUG: only prints when at least one button is actually held, so it
-	// doesn't spam every frame while idle.
-	if (paddata.BTN_UP || paddata.BTN_DOWN || paddata.BTN_LEFT || paddata.BTN_RIGHT ||
+	// DEBUG: only prints when at least one button is actually held (and
+	// only if `debug` is on), so it doesn't spam every frame while idle.
+	if (debug && (paddata.BTN_UP || paddata.BTN_DOWN || paddata.BTN_LEFT || paddata.BTN_RIGHT ||
 	    paddata.BTN_TRIANGLE || paddata.BTN_CIRCLE || paddata.BTN_CROSS || paddata.BTN_SQUARE ||
 	    paddata.BTN_L1 || paddata.BTN_R1 || paddata.BTN_L2 || paddata.BTN_R2 ||
-	    paddata.BTN_SELECT || paddata.BTN_START || paddata.BTN_L3 || paddata.BTN_R3) {
+	    paddata.BTN_SELECT || paddata.BTN_START || paddata.BTN_L3 || paddata.BTN_R3)) {
 		printf("[pad] UP=%d DOWN=%d LEFT=%d RIGHT=%d TRI=%d CIR=%d CRO=%d SQU=%d L1=%d R1=%d L2=%d R2=%d SEL=%d STA=%d L3=%d R3=%d\n",
 			paddata.BTN_UP, paddata.BTN_DOWN, paddata.BTN_LEFT, paddata.BTN_RIGHT,
 			paddata.BTN_TRIANGLE, paddata.BTN_CIRCLE, paddata.BTN_CROSS, paddata.BTN_SQUARE,
@@ -159,7 +160,7 @@ int main(void)
 	// PS3 file I/O needs the /app_home/ VFS prefix to find files bundled
 	// next to the executable -- a bare relative path (what the original
 	// desktop version used) doesn't resolve here.
-	loadROM("/app_home/roms/6-keypad.ch8", chip);
+	loadROM("/app_home/roms/Landing.ch8", chip);
 
 	const u32 chip8Scale = 10; // matches the original's drawDisplay() default
 	s32 chip8OriginX = (display_width - 64 * chip8Scale) / 2;
@@ -167,10 +168,12 @@ int main(void)
 
 	// DEBUG: print pad connection status once, right before entering the
 	// CHIP-8 loop, so we know whether RPCS3 even reports a connected pad.
-	ioPadGetInfo(&padinfo);
-	printf("[pad] max=%d\n", padinfo.max);
-	for (int i = 0; i < MAX_PADS; i++) {
-		printf("[pad] status[%d]=%d\n", i, padinfo.status[i]);
+	if (debug) {
+		ioPadGetInfo(&padinfo);
+		printf("[pad] max=%d\n", padinfo.max);
+		for (int i = 0; i < MAX_PADS; i++) {
+			printf("[pad] status[%d]=%d\n", i, padinfo.status[i]);
+		}
 	}
 
 	while (running) {
