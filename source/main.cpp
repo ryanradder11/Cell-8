@@ -16,7 +16,7 @@
 SYS_PROCESS_PARAM(1001, 0x100000);
 
 static u32 running = 0;
-static bool mainDebug = false; // named differently from chip8.h's `debug` global to avoid clashing
+static bool mainDebug = false;
 
 extern "C" {
 static void program_exit_callback()
@@ -35,13 +35,6 @@ static void sysutil_exit_callback(u64 status, u64 param, void *usrdata)
 }
 }
 
-// Platform glue for ~/projects/chip8-emulator (ported as-is into
-// include/chip8, source/chip8 -- see chip8.h). The original targets
-// SDL2 for display/input; these two functions are the PS3 replacements
-// for its drawDisplay()/processInput(), same idea (blit the 64x32
-// monochrome buffer as scaled squares; map keys to buttons), just against
-// this project's RSX framebuffer and io/pad instead of an SDL window.
-
 static void drawChip8Display(u32 *buffer, u32 pitchPixels, const Chip8 &chip, s32 originX, s32 originY, u32 scale)
 {
 	for (u32 y = 0; y < 32; y++) {
@@ -57,9 +50,6 @@ static void drawChip8Display(u32 *buffer, u32 pitchPixels, const Chip8 &chip, s3
 	}
 }
 
-// Same key layout the original used on a keyboard (four rows of four),
-// just mapped onto the DualShock's buttons instead -- there's no "as-is"
-// precedent for this since the original never ran on a gamepad.
 static void updateChip8Keys(Chip8 &chip, const padData &paddata)
 {
 	// DEBUG: only prints when at least one button is actually held (and
@@ -109,9 +99,7 @@ int main(void)
 
 	ioPadInit(7);
 
-	// Populate ROM_LIST by scanning the HDD (creating that folder if it's
-	// missing) and all USB roms/ dirs -- see romlist.cpp for exact
-	// paths/behavior.
+	// Populate ROM_LIST by scanning the HDD (creating that folder if it's not present)
 	romlist_init();
 	if (mainDebug) {
 		printf("[romlist] ROM_COUNT=%d\n", ROM_COUNT);
@@ -121,11 +109,6 @@ int main(void)
 	}
 
 	// Intro screen: show the title + subtitle until the player presses X,
-	// or the game is asked to exit (SYSUTIL_EXIT_GAME) while still on it.
-	// Text is drawn with our own CPU-side 5x7 bitmap font (font5x7.cpp)
-	// straight into the framebuffer -- no RSX shaders involved, since
-	// cgcomp/Cg (needed for PSL1GHT's own shader-based debugfont_renderer)
-	// isn't available on this ARM64 toolchain.
 	const char *title = "CELL-8";
 	const char *subtitle = "PRESS X TO START";
 	const u32 titleScale = 6;
@@ -184,17 +167,7 @@ int main(void)
 	// Outer loop: pick a ROM in the menu, play it until SELECT sends us
 	// back here to pick another one (or the app is asked to exit).
 	while (running) {
-		// ROM selection menu: D-pad up/down to move, Cross to confirm.
-		// Unlike updateChip8Keys() (which wants continuous "is held"
-		// state for game input), menu navigation needs edge-detection --
-		// only react the frame a button transitions from released to
-		// pressed, or a single tap would scroll through several entries
-		// before you let go.
 
-		// Seed prev* with the pad's *actual current* state, not false --
-		// otherwise a button still held from the previous screen (intro's
-		// Cross, or gameplay's Select) reads as a fresh edge here and
-		// instantly confirms/reacts on the very first frame.
 		bool prevUp = false, prevDown = false, prevCross = false;
 		ioPadGetInfo(&padinfo);
 		for (int i = 0; i < MAX_PADS; i++) {
@@ -248,8 +221,6 @@ int main(void)
 			s32 entryY = 120;
 			s32 entryLineHeight = (7 + 4) * entryScale; // glyphs are 7px tall (font5x7.cpp), + 4px gap
 
-			// ROM_COUNT (84 as of writing) doesn't fit on screen at once, so
-			// only render a scrolling window of VISIBLE_ROWS entries, kept
 			// centered around selectedRom (clamped at the list's ends).
 			const int VISIBLE_ROWS = 12;
 			int scrollOffset = selectedRom - VISIBLE_ROWS / 2;
@@ -270,17 +241,10 @@ int main(void)
 
 		if (!running) break;
 
-		// CHIP-8: ~/projects/chip8-emulator, ported as-is (see chip8.h/.cpp).
-		Chip8 chip = {}; // zero-initialized; the original leaves this to
-		                 // whatever garbage was on the stack, which is riskier
-		                 // to carry over onto a different CPU architecture
+		Chip8 chip = {};
 		chip.pc = 0x200; // Start of most CHIP-8 programs
 		loadROM(ROM_LIST[selectedRom].path, chip);
 
-		// Seed prevSelect the same way as the menu's prev* above -- Cross
-		// is still held from confirming the menu, but that's a different
-		// button, so this mainly guards against Select itself being held
-		// from a previous return-to-menu round-trip.
 		bool prevSelect = false;
 		ioPadGetInfo(&padinfo);
 		for (int i = 0; i < MAX_PADS; i++) {
@@ -326,9 +290,6 @@ int main(void)
 			if (chip.sound_timer > 0) chip.sound_timer--; // no audio output (yet)
 
 			// Redrawn every frame regardless of drawFlag (unlike the original):
-			// with quad-buffering, only redrawing on drawFlag can leave stale
-			// content (e.g. leftover intro text) in ring-buffer slots that
-			// weren't touched during the most recent draw.
 			u32 *buf = color_buffer[curr_fb];
 			u32 pitchPixels = color_pitch / 4;
 			memset(buf, 0, display_height * color_pitch);
