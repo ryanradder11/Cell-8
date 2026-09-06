@@ -1,4 +1,4 @@
-# Cell-8
+# CELL-8
 
 A CHIP-8 emulator for the PlayStation 3, built from scratch on PSL1GHT, with a hand-rolled bitmap font renderer, DualShock controller input, and a ROM menu that scans your HDD and USB drives for ROMS.
 
