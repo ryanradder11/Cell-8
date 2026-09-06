@@ -365,12 +365,28 @@ void emulateCycle(Chip8 &chip)
 			// EX9E: Skip next instruction if key with value of Vx is pressed
 		{
 			uint8_t x = (opcode & 0x0F00) >> 8;
-			if (chip.V[x] < 16 && chip.keypad[chip.V[x]] == 1) {
-				if (debug) printf("Key pressed: %d\n", chip.V[x]);
-				chip.pc += 4;
-			} else {
-				chip.pc += 2;
+			uint8_t lowByte = opcode & 0x00FF;
+			printf("[Ex__] opcode=%x lowByte=%x (9E=skip-if-pressed, A1=skip-if-NOT-pressed) x=%d V[x]=%d keypad[V[x]]=%d\n",
+				opcode, lowByte, x, chip.V[x], (chip.V[x] < 16) ? chip.keypad[chip.V[x]] : 255);
+
+			if (lowByte == 0xA1) {
+
+				if (chip.V[x] < 16 && chip.keypad[chip.V[x]] != 1) {
+					if (debug) printf("Key pressed: %d\n", chip.V[x]);
+					chip.pc += 4;
+				} else {
+					chip.pc += 2;
+				}
+			} else if (lowByte == 0x9E) {
+
+				if (chip.V[x] < 16 && chip.keypad[chip.V[x]] == 1) {
+					if (debug) printf("Key pressed: %d\n", chip.V[x]);
+					chip.pc += 4;
+				} else {
+					chip.pc += 2;
+				}
 			}
+
 		}
 		if (debug) printf("Skip next instruction if key with value of V%d is pressed\n", (opcode & 0x0F00) >> 8);
 		if (debug) printf("VX value: %d\n", chip.V[(opcode & 0x0F00) >> 8]);
