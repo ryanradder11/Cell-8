@@ -10,15 +10,10 @@ INCLUDES := -Iinclude -I$(PS3DEV)/ppu/include
 
 # -lio: needed for io/pad.h (detecting the intro-screen button press /
 # CHIP-8 keypad input)
-LIBS	 := -lrsx -lgcm_sys -lsysutil -lio -lrt -llv2 -lm
+# -lsysfs: needed for the sysFs* HDD/USB directory scanning in romlist.cpp
+LIBS	 := -lrsx -lgcm_sys -lsysutil -lio -lsysfs -lrt -llv2 -lm
 
 BUILDDIR := build
-
-# Bundled into the .pkg's USRDIR so the ROM loadROM() opens by its
-# relative path ("roms/games/Figures.ch8") is still found when installed
-# and run as a real package (app_home then points at the install dir,
-# not this project directory).
-PKGFILES := roms
 
 TITLE	:= Cell-8
 APPID	:= CELL80001

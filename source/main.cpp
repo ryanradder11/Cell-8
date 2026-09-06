@@ -109,6 +109,17 @@ int main(void)
 
 	ioPadInit(7);
 
+	// Populate ROM_LIST: built-in ROMs first, then anything found on the
+	// HDD (creating that folder if it's missing) and USB roms/ dirs --
+	// see romlist.cpp for exact paths/behavior.
+	romlist_init();
+	if (mainDebug) {
+		printf("[romlist] ROM_COUNT=%d\n", ROM_COUNT);
+		for (int i = 0; i < ROM_COUNT; i++) {
+			printf("[romlist] %d: %s -> %s\n", i, ROM_LIST[i].name, ROM_LIST[i].path);
+		}
+	}
+
 	// Intro screen: show the title + subtitle until the player presses X,
 	// or the game is asked to exit (SYSUTIL_EXIT_GAME) while still on it.
 	// Text is drawn with our own CPU-side 5x7 bitmap font (font5x7.cpp)
