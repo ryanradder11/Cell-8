@@ -87,7 +87,7 @@ ICON0.png            PS3 XMB / game-list icon
 ## Credits
 
 - Built upon [ryanradder11/chip8-emulator](https://github.com/ryanradder11/chip8-emulator), its CHIP-8 interpreter core was ported here as-is onto PS3 hardware.
-- Shout out to [Timendus/chip8-test-suite](https://github.com/Timendus/chip8-test-suite), their test ROMs were used throughout development to track down interpreter bugs, and are preloaded with the emulator for further development purposes.
+- Many thanks to [Timendus/chip8-test-suite](https://github.com/Timendus/chip8-test-suite), their test ROMs was used throughout development to track down interpreter bugs, and are preloaded with the emulator for further development purposes.
 - Built with [PSL1GHT](https://github.com/ps3dev/PSL1GHT).
 
 ## Releases
