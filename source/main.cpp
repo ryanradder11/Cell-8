@@ -146,7 +146,7 @@ int main(void)
 	// PS3 file I/O needs the /app_home/ VFS prefix to find files bundled
 	// next to the executable -- a bare relative path (what the original
 	// desktop version used) doesn't resolve here.
-	loadROM("/app_home/roms/games/Figures.ch8", chip);
+	loadROM("/app_home/roms/4-flags.ch8", chip);
 
 	const u32 chip8Scale = 10; // matches the original's drawDisplay() default
 	s32 chip8OriginX = (display_width - 64 * chip8Scale) / 2;

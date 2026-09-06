@@ -10,6 +10,16 @@
 
 bool debug = false;
 
+// DEBUG helper: prints an 8-bit value as "label: 0bxxxxxxxx", MSB first.
+static void printBinary8(const char *label, uint8_t val)
+{
+	printf("%s: 0b", label);
+	for (int i = 7; i >= 0; i--) {
+		printf("%d", (val >> i) & 1);
+	}
+	printf(" (%d)\n", val);
+}
+
 bool loadROM(const char *filename, Chip8 &chip)
 {
 	FILE *file = fopen(filename, "rb");
@@ -188,6 +198,7 @@ void emulateCycle(Chip8 &chip)
 					chip.pc += 2;
 					if (debug) printf("Set V[%d] (XOR)^= V[%d] (%d)\n", x, y, chip.V[y]);
 				}
+				break;
 				// Set VX equal to VX plus VY. In the case of an overflow(carry) VF is set to 1. Otherwise 0.
 				case 0x4: {
 					chip.V[x] = (chip.V[x] + chip.V[y]) &0xff;
@@ -202,32 +213,50 @@ void emulateCycle(Chip8 &chip)
 				break;
 				// Set VX equal to VX minus VY. In the case of an underflow VF is set 0. Otherwise 1. (VF = VX > VY)
 				case 0x5: {
-					chip.V[0xF] = (chip.V[x] >= chip.V[y]) ? 1 : 0;
-					chip.V[x] = (chip.V[x] - chip.V[y]) & 0xFF;
+					uint8_t vx = chip.V[x];
+					uint8_t vy = chip.V[y];
+					chip.V[0xF] = (vx >= vy) ? 1 : 0;
+					chip.V[x] = (vx - vy) & 0xFF;
 					chip.pc += 2;
 					if (debug) printf("Set V[%d] -= V[%d] (%d), with borrow flag\n", x, y, chip.V[y]);
 				}
+				break;
 				//Set VX equal to VX bitshifted right 1. VF is set to the least significant bit of VX prior to the shift.
 				case 0x6: {
-					chip.V[0xF] = chip.V[x] & 0x1;
-					chip.V[x] = chip.V[x] >> 1;
+					uint8_t x_value = chip.V[x];
+					printf("[8xy6 pre]  x=%d y=%d\n", x, y);
+					printBinary8("[8xy6] V[x] before AND", chip.V[x]);
+					printBinary8("[8xy6] mask 0x1        ", 0x1);
+
+					chip.V[0xF] = x_value & 0x1;
+
+					printBinary8("[8xy6] V[x] & 0x1 -> VF", chip.V[0xF]);
+					printf("[8xy6 mid]  after VF write: V[x]=%d V[0xF]=%d\n", chip.V[x], chip.V[0xF]);
+
+					chip.V[x] = x_value >> 1;
+
+					printf("[8xy6 post] V[x]=%d V[0xF]=%d\n", chip.V[x], chip.V[0xF]);
 					chip.pc += 2;
 					if (debug) printf("Shift V[%d] right by 1. VF = %d\n", x, chip.V[0xF]);
 				}
 				break;
 				//Set VX equal to VY minus VX. VF is set to 1 if VY > VX. Otherwise 0.
 				case 0x7: {
+					printf("[8xy7 pre]  x=%d y=%d V[x]=%d V[y]=%d V[0xF]=%d\n", x, y, chip.V[x], chip.V[y], chip.V[0xF]);
 					chip.V[0xF] = chip.V[y] > chip.V[x] ? 1 : 0;
 					chip.V[x] = chip.V[y] - chip.V[x] & 0xFF;
+					printf("[8xy7 post] V[x]=%d V[0xF]=%d\n", chip.V[x], chip.V[0xF]);
 					chip.pc += 2;
 					if (debug) printf("Set V[%d] = V[%d] - V[%d] (%d - %d), VF = %d\n", x, y, x, chip.V[y], chip.V[x], chip.V[0xF]);
 				}
 				break;
 				// Set VX equal to VX bitshifted left 1. VF is set to the most significant bit of VX prior to the shift
 				case 0xe: {
+					printf("[8xyE pre]  x=%d y=%d V[x]=%d V[0xF]=%d\n", x, y, chip.V[x], chip.V[0xF]);
 					uint8_t mostSignificantBit = (chip.V[x] & 0x80) ? 1 : 0;
 					chip.V[0xF] = mostSignificantBit;
 					chip.V[x] = (chip.V[x] << 1) & 0xFF;
+					printf("[8xyE post] V[x]=%d V[0xF]=%d\n", chip.V[x], chip.V[0xF]);
 					chip.pc += 2;
 					if (debug) printf("Shift V[%d] left by 1. VF = %d\n", x, chip.V[0xF]);
 				}
