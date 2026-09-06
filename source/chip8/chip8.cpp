@@ -263,14 +263,8 @@ void emulateCycle(Chip8 &chip)
 				break;
 				// Set VX equal to VX bitshifted left 1. VF is set to the most significant bit of VX prior to the shift
 				case 0xe: {
-					printf("[8xyE pre]  x=%d y=%d\n", x, y);
-					printBinary8("[8xyE] V[x] before shift", chip.V[x]);
-					printBinary8("[8xyE] mask 0x80        ", 0x80);
-
 					uint8_t vx = chip.V[x];
 					uint8_t mostSignificantBit = (vx & 0x80) ? 1 : 0;
-
-					printBinary8("[8xyE] V[x] & 0x80 -> bit", mostSignificantBit);
 
 					chip.V[x] = (vx << 1) & 0xFF;
 					chip.V[0xF] = mostSignificantBit;

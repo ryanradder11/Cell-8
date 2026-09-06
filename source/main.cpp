@@ -60,25 +60,38 @@ static void drawChip8Display(u32 *buffer, u32 pitchPixels, const Chip8 &chip, s3
 // precedent for this since the original never ran on a gamepad.
 static void updateChip8Keys(Chip8 &chip, const padData &paddata)
 {
-	chip.keypad[0x1] = paddata.BTN_UP;
-	chip.keypad[0x2] = paddata.BTN_DOWN;
-	chip.keypad[0x3] = paddata.BTN_LEFT;
-	chip.keypad[0xC] = paddata.BTN_RIGHT;
+	// DEBUG: only prints when at least one button is actually held, so it
+	// doesn't spam every frame while idle.
+	if (paddata.BTN_UP || paddata.BTN_DOWN || paddata.BTN_LEFT || paddata.BTN_RIGHT ||
+	    paddata.BTN_TRIANGLE || paddata.BTN_CIRCLE || paddata.BTN_CROSS || paddata.BTN_SQUARE ||
+	    paddata.BTN_L1 || paddata.BTN_R1 || paddata.BTN_L2 || paddata.BTN_R2 ||
+	    paddata.BTN_SELECT || paddata.BTN_START || paddata.BTN_L3 || paddata.BTN_R3) {
+		printf("[pad] UP=%d DOWN=%d LEFT=%d RIGHT=%d TRI=%d CIR=%d CRO=%d SQU=%d L1=%d R1=%d L2=%d R2=%d SEL=%d STA=%d L3=%d R3=%d\n",
+			paddata.BTN_UP, paddata.BTN_DOWN, paddata.BTN_LEFT, paddata.BTN_RIGHT,
+			paddata.BTN_TRIANGLE, paddata.BTN_CIRCLE, paddata.BTN_CROSS, paddata.BTN_SQUARE,
+			paddata.BTN_L1, paddata.BTN_R1, paddata.BTN_L2, paddata.BTN_R2,
+			paddata.BTN_SELECT, paddata.BTN_START, paddata.BTN_L3, paddata.BTN_R3);
+	}
 
-	chip.keypad[0x4] = paddata.BTN_TRIANGLE;
+	chip.keypad[0x1] = paddata.BTN_L1;
+	chip.keypad[0x2] = paddata.BTN_UP;
+	chip.keypad[0x3] = paddata.BTN_R1;
+	// chip.keypad[0xC] = paddata.BTN_L3;
+
+	chip.keypad[0x4] = paddata.BTN_LEFT;
 	chip.keypad[0x5] = paddata.BTN_CIRCLE;
-	chip.keypad[0x6] = paddata.BTN_CROSS;
-	chip.keypad[0xD] = paddata.BTN_SQUARE;
+	chip.keypad[0x6] = paddata.BTN_RIGHT;
+	// chip.keypad[0xD] = paddata.BTN_SQUARE;
 
-	chip.keypad[0x7] = paddata.BTN_L1;
-	chip.keypad[0x8] = paddata.BTN_R1;
-	chip.keypad[0x9] = paddata.BTN_L2;
-	chip.keypad[0xE] = paddata.BTN_R2;
+	chip.keypad[0x7] = paddata.BTN_L2;
+	chip.keypad[0x8] = paddata.BTN_DOWN;
+	chip.keypad[0x9] = paddata.BTN_R2;
+	// chip.keypad[0xE] = paddata.BTN_R2;
 
-	chip.keypad[0xA] = paddata.BTN_SELECT;
+	chip.keypad[0xA] = paddata.BTN_L3;
 	chip.keypad[0x0] = paddata.BTN_START;
-	chip.keypad[0xB] = paddata.BTN_L3;
-	chip.keypad[0xF] = paddata.BTN_R3;
+	chip.keypad[0xB] = paddata.BTN_R3;
+	// chip.keypad[0xF] = paddata.BTN_R3;
 }
 
 int main(void)
@@ -146,11 +159,19 @@ int main(void)
 	// PS3 file I/O needs the /app_home/ VFS prefix to find files bundled
 	// next to the executable -- a bare relative path (what the original
 	// desktop version used) doesn't resolve here.
-	loadROM("/app_home/roms/4-flags.ch8", chip);
+	loadROM("/app_home/roms/6-keypad.ch8", chip);
 
 	const u32 chip8Scale = 10; // matches the original's drawDisplay() default
 	s32 chip8OriginX = (display_width - 64 * chip8Scale) / 2;
 	s32 chip8OriginY = (display_height - 32 * chip8Scale) / 2;
+
+	// DEBUG: print pad connection status once, right before entering the
+	// CHIP-8 loop, so we know whether RPCS3 even reports a connected pad.
+	ioPadGetInfo(&padinfo);
+	printf("[pad] max=%d\n", padinfo.max);
+	for (int i = 0; i < MAX_PADS; i++) {
+		printf("[pad] status[%d]=%d\n", i, padinfo.status[i]);
+	}
 
 	while (running) {
 		sysUtilCheckCallback();
