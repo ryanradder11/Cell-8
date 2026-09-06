@@ -10,8 +10,8 @@ INCLUDES := -Iinclude -I$(PS3DEV)/ppu/include
 
 # -lio: needed for io/pad.h (detecting the intro-screen button press /
 # CHIP-8 keypad input)
-# -lsysfs: needed for the sysFs* HDD/USB directory scanning in romlist.cpp
-LIBS	 := -lrsx -lgcm_sys -lsysutil -lio -lsysfs -lrt -llv2 -lm
+# HDD/USB directory scanning in romlist.cpp uses standard POSIX
+LIBS	 := -lrsx -lgcm_sys -lsysutil -lio -lrt -llv2 -lm
 
 BUILDDIR := build
 

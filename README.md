@@ -10,6 +10,8 @@ Built upon [ryanradder11/chip8-emulator](https://github.com/ryanradder11/chip8-e
 
 <p align="center"><img src="screenshots/rom-menu.png" width="500" alt="Cell-8 ROM select menu"></p>
 
+<p align="center"><img src="screenshots/chip8_on_ps3.jpg" width="500" alt="Cell-8 installed on real PS3 hardware"></p>
+
 ## Features
 
 - **CHIP-8 interpreter** — full opcode set, ported from [ryanradder11/chip8-emulator](https://github.com/ryanradder11/chip8-emulator) onto raw PS3 hardware.

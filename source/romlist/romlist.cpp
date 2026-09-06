@@ -3,11 +3,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
-#include <lv2/sysfs.h>
+#include <dirent.h>
+#include <sys/stat.h>
 
-// PSL1GHT's native lv2/sysfs.h sysFs* API (sysFsOpendir/sysFsReaddir/
-// sysFsClosedir/sysFsStat/sysFsMkdir), not the standard POSIX dirent/stat
-// calls -- needs -lsysfs in the Makefile.
+
 
 RomEntry ROM_LIST[ROM_LIST_MAX];
 int ROM_COUNT = 0;
@@ -58,24 +57,23 @@ static void sanitizeName(const char *filename, char *out, int outSize)
 // callers decide whether that's worth creating the directory for first.
 static void scanDirectory(const char *dirPath)
 {
-	s32 fd;
-	if (sysFsOpendir(dirPath, &fd) != 0) return;
+	DIR *dir = opendir(dirPath);
+	if (!dir) return;
 
-	sysFSDirent entry;
-	u64 bytesRead = 0;
-	while (sysFsReaddir(fd, &entry, &bytesRead) == 0 && bytesRead > 0) {
-		if (!hasCh8Extension(entry.d_name)) continue;
+	struct dirent *entry;
+	while ((entry = readdir(dir)) != NULL) {
+		if (!hasCh8Extension(entry->d_name)) continue;
 
 		char name[ROM_NAME_MAX];
-		sanitizeName(entry.d_name, name, sizeof(name));
+		sanitizeName(entry->d_name, name, sizeof(name));
 
 		char path[ROM_PATH_MAX];
-		snprintf(path, sizeof(path), "%s%s", dirPath, entry.d_name);
+		snprintf(path, sizeof(path), "%s%s", dirPath, entry->d_name);
 
 		addRom(name, path);
 	}
 
-	sysFsClosedir(fd);
+	closedir(dir);
 }
 
 void romlist_init()
@@ -90,9 +88,9 @@ void romlist_init()
 	// development), mkdir just fails harmlessly and the following scan
 	// finds nothing -- no error shown to the user either way.
 	const char *hddRomsDir = "/dev_hdd0/game/CELL80001/USRDIR/roms/";
-	sysFSStat st;
-	if (sysFsStat(hddRomsDir, &st) != 0) {
-		sysFsMkdir(hddRomsDir, 0777);
+	struct stat st;
+	if (stat(hddRomsDir, &st) != 0) {
+		mkdir(hddRomsDir, 0777);
 	}
 	scanDirectory(hddRomsDir);
 
@@ -101,11 +99,11 @@ void romlist_init()
 	// -- there's no fixed mapping from physical port to slot number, so
 	// all 8 have to be checked. Only scan ones actually present; no USB
 	// inserted in a given slot is a normal case, not an error --
-	// sysFsStat failing here is all we need to silently skip it.
+	// stat() failing here is all we need to silently skip it.
 	for (int i = 0; i < 8; i++) {
 		char usbRomsDir[32];
 		snprintf(usbRomsDir, sizeof(usbRomsDir), "/dev_usb00%d/roms/", i);
-		if (sysFsStat(usbRomsDir, &st) == 0) {
+		if (stat(usbRomsDir, &st) == 0) {
 			scanDirectory(usbRomsDir);
 		}
 	}
