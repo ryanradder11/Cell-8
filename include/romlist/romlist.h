@@ -2,11 +2,13 @@
 #define ROMLIST_H
 
 // ROM list is populated purely by scanning for .ch8 files at runtime --
-// no built-in/bundled list -- across two directories:
+// no built-in/bundled list -- across these directories:
 //   - HDD: /dev_hdd0/game/CELL80001/USRDIR/roms/ (created if missing --
 //     CELL80001 must match this app's APPID in the Makefile)
-//   - USB: /dev_usb000/roms/ (only scanned if actually present; no USB
-//     inserted is a normal, silent case, not an error)
+//   - USB: /dev_usb000/roms/ through /dev_usb007/roms/ (all 8 possible
+//     USB mass-storage slots -- a stick in any port, front or back,
+//     lands in whichever slot is next free, so all are checked; slots
+//     with nothing plugged in are silently skipped, not an error)
 
 #define ROM_NAME_MAX 48
 #define ROM_PATH_MAX 160

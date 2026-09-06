@@ -96,11 +96,17 @@ void romlist_init()
 	}
 	scanDirectory(hddRomsDir);
 
-	// USB: only scan if actually present. No USB inserted is a normal
-	// case, not an error -- sysFsStat failing here is all we need to
-	// silently skip it.
-	const char *usbRomsDir = "/dev_usb000/roms/";
-	if (sysFsStat(usbRomsDir, &st) == 0) {
-		scanDirectory(usbRomsDir);
+	// USB: a stick plugged into any port (front or back, any PS3 model)
+	// gets mounted at the next free slot from /dev_usb000 to /dev_usb007
+	// -- there's no fixed mapping from physical port to slot number, so
+	// all 8 have to be checked. Only scan ones actually present; no USB
+	// inserted in a given slot is a normal case, not an error --
+	// sysFsStat failing here is all we need to silently skip it.
+	for (int i = 0; i < 8; i++) {
+		char usbRomsDir[32];
+		snprintf(usbRomsDir, sizeof(usbRomsDir), "/dev_usb00%d/roms/", i);
+		if (sysFsStat(usbRomsDir, &st) == 0) {
+			scanDirectory(usbRomsDir);
+		}
 	}
 }
