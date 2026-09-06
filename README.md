@@ -1,8 +1,8 @@
 # Cell-8
 
-A CHIP-8 emulator for the PlayStation 3, built from scratch on PSL1GHT — RSX framebuffer graphics, a hand-rolled bitmap font renderer, DualShock controller input, and a ROM menu that scans your HDD and USB drives so you never have to rebuild the app to play something new.
+A CHIP-8 emulator for the PlayStation 3, built from scratch on PSL1GHT, with a hand-rolled bitmap font renderer, DualShock controller input, and a ROM menu that scans your HDD and USB drives for ROMS.
 
-Built upon [ryanradder11/chip8-emulator](https://github.com/ryanradder11/chip8-emulator), a standalone SDL2 CHIP-8 emulator — its interpreter core was ported here as-is onto PS3 hardware.
+Built upon [ryanradder11/chip8-emulator](https://github.com/ryanradder11/chip8-emulator), a standalone SDL2 CHIP-8 emulator, its interpreter core was ported here as-is onto PS3 hardware.
 
 **[Download the latest release →](https://github.com/ryanradder11/Cell-8/releases/)**
 
@@ -13,10 +13,10 @@ Built upon [ryanradder11/chip8-emulator](https://github.com/ryanradder11/chip8-e
 ## Features
 
 - **CHIP-8 interpreter** — full opcode set, ported from [ryanradder11/chip8-emulator](https://github.com/ryanradder11/chip8-emulator) onto raw PS3 hardware.
-- **RSX graphics** — the framebuffer is written to directly from the CPU; no shader pipeline required (Cg/cgcomp isn't available on this toolchain).
+- **RSX graphics** — the framebuffer is written to directly from the CPU.
 - **Custom 5x7 bitmap font** — full A-Z/0-9 renderer used for the title screen and ROM menu, built without any PSL1GHT debug-font dependency.
 - **ROM select menu** — D-pad to browse, Cross to launch, SELECT to return to the menu mid-game.
-- **Drop-in ROMs, no rebuild needed** — the emulator scans for `.ch8` files on your HDD and any USB stick at startup.
+- **Drop-in ROMs** — the emulator scans for `.ch8` files on your HDD and any USB stick at startup.
 - **8 bundled test-suite ROMs** — [Timendus' chip8-test-suite](https://github.com/Timendus/chip8-test-suite) ships in the package; used to track down interpreter bugs during development and kept preloaded for further development.
 
 ## Controls
@@ -44,16 +44,12 @@ Built upon [ryanradder11/chip8-emulator](https://github.com/ryanradder11/chip8-e
 
 ## Adding your own ROMs
 
-No rebuild required — just drop `.ch8` files into one of these folders, and they'll show up in the menu next time Cell-8 starts:
+Just drop `.ch8` files into one of these folders below and they'll show up in the menu next time Cell-8 starts:
 
 - **Internal HDD:** `/dev_hdd0/game/CELL80001/USRDIR/roms/` (created automatically on first run if it doesn't exist yet)
-- **USB drive:** a `roms/` folder at the root of the stick, in *any* USB port — Cell-8 checks all 8 possible slots (`/dev_usb000` through `/dev_usb007`), since the PS3 doesn't map physical ports to fixed slot numbers.
+- **USB drive:** a `roms/` folder at the root of the stick, Cell-8 checks all 8 possible slots (`/dev_usb000` through `/dev_usb007`), since the PS3 doesn't map physical ports to fixed slot numbers.
 
-No USB inserted, or an empty HDD folder, is completely normal — the emulator just runs with whatever it finds.
-
-> **Note for RPCS3:** the emulator's HDD/USB paths are console paths, not paths on your actual machine. RPCS3 maps them to folders inside its own profile directory (e.g. `dev_hdd0/`, `dev_usb000/`) unless you point its Virtual File System settings at a real drive.
-
-## Building
+## Building from source
 
 Requires the [PSL1GHT](https://github.com/ps3dev/PSL1GHT) SDK and `ps3dev` toolchain (`ppu-gcc`/`ppu-g++`) with `$PSL1GHT` and `$PS3DEV` set.
 
@@ -80,9 +76,13 @@ ICON0.png            PS3 XMB / game-list icon
 
 ## Credits
 
-- Built upon [ryanradder11/chip8-emulator](https://github.com/ryanradder11/chip8-emulator) — its CHIP-8 interpreter core was ported here as-is onto PS3 hardware.
-- Shout out to [Timendus/chip8-test-suite](https://github.com/Timendus/chip8-test-suite) — their test ROMs were used throughout development to track down interpreter bugs, and are preloaded with the emulator for further development purposes.
+- Built upon [ryanradder11/chip8-emulator](https://github.com/ryanradder11/chip8-emulator), its CHIP-8 interpreter core was ported here as-is onto PS3 hardware.
+- Shout out to [Timendus/chip8-test-suite](https://github.com/Timendus/chip8-test-suite), their test ROMs were used throughout development to track down interpreter bugs, and are preloaded with the emulator for further development purposes.
 - Built with [PSL1GHT](https://github.com/ps3dev/PSL1GHT).
+
+## Releases
+
+Prebuilt `.pkg` files are published on the [Releases page](https://github.com/ryanradder11/Cell-8/releases/), download the latest one and install it directly in RPCS3 or on a jailbroken PS3, no build step required.
 
 ## License
 
