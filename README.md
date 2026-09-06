@@ -16,7 +16,7 @@ Built upon [ryanradder11/chip8-emulator](https://github.com/ryanradder11/chip8-e
   <img src="screenshots/opcode-test-passing.png" width="400" alt="corax+ opcode test suite passing on real PS3 hardware">
   <img src="screenshots/flags-test-passing.png" width="400" alt="flags/quirks test suite passing on real PS3 hardware">
 </p>
-<p align="center"><sub>The Timendus corax+ and flags test ROMs passing on real PS3 hardware.</sub></p>
+<p align="center"><sub>Both the op-codes & registry flags test ROMs passing on real PS3 hardware.</sub></p>
 
 ## Features
 
