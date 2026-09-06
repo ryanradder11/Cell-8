@@ -4,13 +4,13 @@ A CHIP-8 emulator for the PlayStation 3, built from scratch on PSL1GHT, with a h
 
 Built upon [ryanradder11/chip8-emulator](https://github.com/ryanradder11/chip8-emulator), a standalone SDL2 CHIP-8 emulator, its interpreter core was ported here as-is onto PS3 hardware.
 
-**[Download the latest release →](https://github.com/ryanradder11/Cell-8/releases/)**
+**[Download the latest release →](https://github.com/ryanradder11/CELL-8/releases/)**
 
 <p align="center"><img src="ICON0.png" width="320" alt="Cell-8 icon"></p>
 
-<p align="center"><img src="screenshots/rom-menu.png" width="500" alt="Cell-8 ROM select menu"></p>
+<p align="center"><img src="screenshots/rom-menu.png" width="500" alt="CELL-8 ROM select menu"></p>
 
-<p align="center"><img src="screenshots/chip8_on_ps3.jpg" width="500" alt="Cell-8 installed on real PS3 hardware"></p>
+<p align="center"><img src="screenshots/chip8_on_ps3.jpg" width="500" alt="CELL-8 installed on real PS3 hardware"></p>
 
 <p align="center">
   <img src="screenshots/opcode-test-passing.png" width="400" alt="corax+ opcode test suite passing on real PS3 hardware">
@@ -57,7 +57,7 @@ Just drop `.ch8` files into one of these folders below and they'll show up in th
 | Location | Path | Notes |
 |---|---|---|
 | Internal HDD | `/dev_hdd0/game/CELL80001/USRDIR/roms/` | Created automatically on first run if it doesn't exist yet. |
-| USB drive | `roms/` folder at the root of the stick | Any port works — Cell-8 checks all 8 possible slots (`/dev_usb000` through `/dev_usb007`). |
+| USB drive | `roms/` folder at the root of the stick | Any port works, CEll-8 checks all 8 possible slots (`/dev_usb000` through `/dev_usb007`). |
 
 ## Building from source
 
@@ -92,7 +92,7 @@ ICON0.png            PS3 XMB / game-list icon
 
 ## Releases
 
-Prebuilt `.pkg` files are published on the [Releases page](https://github.com/ryanradder11/Cell-8/releases/), download the latest one and install it directly in RPCS3 or on a jailbroken PS3, no build step required.
+Prebuilt `.pkg` files are published on the [Releases page](https://github.com/ryanradder11/CELL-8/releases/), download the latest one and install it directly in RPCS3 or on a jailbroken PS3, no build step required.
 
 ## License
 
