@@ -248,12 +248,12 @@ void emulateCycle(Chip8 &chip)
 					uint8_t vx = chip.V[x];
 					uint8_t vy = chip.V[y];
 
-					chip.V[0xF] = vy > vx ? 1 : 0;
 
 					// printBinary8("[8xy7] V[y] > V[x] -> VF", chip.V[0xF]);
 					// printf("[8xy7 mid]  after VF write: V[x]=%d V[y]=%d V[0xF]=%d\n", chip.V[x], chip.V[y], chip.V[0xF]);
 
 					chip.V[x] = vy - vx & 0xFF;
+					chip.V[0xF] = vy >= vx ? 1 : 0;
 
 					// printBinary8("[8xy7] V[y] - V[x] -> V[x]", chip.V[x]);
 					// printf("[8xy7 post] V[x]=%d V[0xF]=%d\n", chip.V[x], chip.V[0xF]);
