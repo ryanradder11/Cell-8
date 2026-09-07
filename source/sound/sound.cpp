@@ -17,7 +17,7 @@ static void audioThreadEntry(void *arg)
 	(void) arg;
 
 	double phase = 0.0;
-	const double phaseStep = 440.0 / 48000.0; // 440Hz at the PS3's fixed 48kHz audio rate
+	const double phaseStep = 432.0 / 48000.0; // 432Hz at the PS3's fixed 48kHz audio rate
 
 	u32 nextBlock = 0;
 
@@ -33,6 +33,7 @@ static void audioThreadEntry(void *arg)
 
 		for (u32 i = 0; i < AUDIO_BLOCK_SAMPLES; i++) {
 			f32 sample = 0.0f;
+			//1 hardest up, -1 hardest down. +0.2 in first half of phase, -0.2 in second half of phase
 			if (active) sample = (phase < 0.5) ? 0.2f : -0.2f;
 
 			block[i * 2 + 0] = sample;
