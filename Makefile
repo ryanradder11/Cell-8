@@ -4,14 +4,15 @@
 
 TARGET	:= Cell-8
 
-OFILES	:= source/main.o source/rsxutil.o source/font/font5x7.o source/chip8/chip8.o source/romlist/romlist.o
+OFILES	:= source/main.o source/rsxutil.o source/font/font5x7.o source/chip8/chip8.o source/romlist/romlist.o source/sound/sound.o
 
 INCLUDES := -Iinclude -I$(PS3DEV)/ppu/include
 
 # -lio: needed for io/pad.h (detecting the intro-screen button press /
 # CHIP-8 keypad input)
 # HDD/USB directory scanning in romlist.cpp uses standard POSIX
-LIBS	 := -lrsx -lgcm_sys -lsysutil -lio -lrt -llv2 -lm
+# -laudio: PSL1GHT audio-port API, used for the CHIP-8 sound_timer beep
+LIBS	 := -lrsx -lgcm_sys -lsysutil -lio -laudio -lrt -llv2 -lm
 
 BUILDDIR := build
 

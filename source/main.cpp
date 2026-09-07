@@ -12,6 +12,7 @@
 #include "font/font5x7.h"
 #include "chip8/chip8.h"
 #include "romlist/romlist.h"
+#include "sound/sound.h"
 
 SYS_PROCESS_PARAM(1001, 0x100000);
 
@@ -21,6 +22,7 @@ static bool mainDebug = false;
 extern "C" {
 static void program_exit_callback()
 {
+	soundQuit();
 	finish();
 }
 
@@ -91,6 +93,7 @@ int main(void)
 	printf("Cell-8: RSX hello world starting...\n");
 
 	initScreen();
+	soundInit();
 
 	atexit(program_exit_callback);
 	sysUtilRegisterCallback(SYSUTIL_EVENT_SLOT0, sysutil_exit_callback, NULL);
@@ -278,16 +281,13 @@ int main(void)
 				break; // skip simulating/rendering a frame we're about to leave
 			}
 
-			// The original ran emulateCycle() roughly 100x/sec (a free-running
-			// loop with a 10ms SDL_Delay). Our loop is instead paced by
-			// flip()'s vsync (~60Hz), so a couple of cycles per rendered
-			// frame lands in the same ballpark.
 			emulateCycle(chip);
 			emulateCycle(chip);
 
 			// 60Hz timers, decremented once per rendered frame.
 			if (chip.delay_timer > 0) chip.delay_timer--;
-			if (chip.sound_timer > 0) chip.sound_timer--; // no audio output (yet)
+			if (chip.sound_timer > 0) chip.sound_timer--;
+			soundSetActive(chip.sound_timer > 0);
 
 			// Redrawn every frame regardless of drawFlag (unlike the original):
 			u32 *buf = color_buffer[curr_fb];
