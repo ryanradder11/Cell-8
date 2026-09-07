@@ -4,8 +4,7 @@
 void soundInit();
 void soundQuit();
 
-// Called once per frame right after chip.sound_timer is decremented, to
-// tell the audio thread whether a tone should be playing right now.
+//call once per frame to simply tell if a tone should be playing yes/no
 void soundSetActive(bool active);
 
-#endif // SOUND_H
+#endif
