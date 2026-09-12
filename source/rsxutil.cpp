@@ -333,7 +333,7 @@ void initScreen()
 
     waitRSXIdle(); // make sure RSX is quiet before we start allocating
 
-    gcmSetFlipMode(GCM_FLIP_HSYNC); // flip in sync with the display's hsync
+    gcmSetFlipMode(GCM_FLIP_VSYNC); // flip in sync with the display's vsync -- matches the known-working rsxtest sample
 
     // Allocate one color buffer per ring-buffer slot in RSX-local video
     // memory, convert each to an RSX offset, and register it with GCM as
