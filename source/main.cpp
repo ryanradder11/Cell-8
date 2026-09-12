@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <malloc.h>
 #include <ppu-types.h>
 
 #include <sys/process.h>
@@ -13,6 +14,7 @@
 #include "chip8/chip8.h"
 #include "romlist/romlist.h"
 #include "sound/sound.h"
+#include "screen/screen.h"
 
 SYS_PROCESS_PARAM(1001, 0x100000);
 
@@ -102,6 +104,25 @@ int main(void)
 
 	ioPadInit(7);
 
+	// Standalone RSX shader learning exercise: a grid of squares, drawn
+	// with a real vertex+fragment program (see CLAUDE.md's "Shader
+	// compilation" section), unrelated to the CHIP-8 rendering below.
+	// Isolated for debugging: everything else in main() below this is
+	// disabled (#if 0) so ONLY the screen demo runs, with nothing else
+	// touching RSX state or the framebuffers afterward.
+	screenInit();
+	setRenderTarget(curr_fb); // rsxSetSurface is otherwise never called before the first flip()
+	while (running) {
+		sysUtilCheckCallback();
+
+		screenDraw();
+		flip();
+	}
+
+	printf("Cell-8: exiting...\n");
+	return 0;
+
+#if 0
 	// Populate ROM_LIST by scanning the HDD (creating that folder if it's not present)
 	romlist_init();
 	if (mainDebug) {
@@ -304,4 +325,5 @@ int main(void)
 
 	printf("Cell-8: exiting...\n");
 	return 0;
+#endif
 }
